@@ -1,3 +1,14 @@
+
+/**
+ * 7种数组遍历的方法 
+ * forEach
+ * map
+ * filter
+ * reduce
+ * reduceRight
+ * every
+ * some
+ */
 /**
  * @method forEach
  * @description 对数组的每一个元素执行一次给定的方法，不会改变原数组的引用值，那些已删除或者未初始化的项将被跳过（例如在稀疏数组上）。
@@ -178,4 +189,44 @@ Array.prototype._forEach = function(callback){
 
     return initValue;
  }
+
+
+  // ==================================== 迭代器介绍部分 ============================================== //
+/**
+ * @method * generate
+ * @description 
+ *  生成器 -> * generate 生成器对迭代的控制是通过yield关键字执行的(重点)
+ *  迭代器 -> 生成器函数执行后返回的一个带有next方法的对象
+ *  next方法 -> 返回数组每一项下标所对应的值value、done: false/true
+ *  完成所有迭代后再次调用next方法done变为true
+ */
+
+function generate(arr){
+    var newInx = 0;
+      return {
+        next: function(){
+          return {
+            value: arr[newInx ++],
+            done: newInx < arr.length ? false : true
+          }
+        }
+      }
+}
+
+ /**
+ * @method entires 
+ * @descirption 返回一个新的Array Iterator对象，
+ * 该对象包含数组中每个索引的键/值对。
+ * @returns {Array Iterator} 一个新的Array 迭代器对象。Array Iterator是对象，由Object函数构造
+ *                           它的原型（__proto__:Array Iterator）上有一个next方法，
+ *                           可用于遍历迭代器取得原数组的[index, value]  
+ **/
+
+ Array.prototype._entries = function *(){
+    for(var i = 0; i < this.length; i++){
+      yield [i, this[i]];  //生成器对迭代器的控制是通过yield关键字执行的
+    }    
+}
+
+
   
