@@ -38,7 +38,7 @@ Array.prototype._forEach = function(callback){
         thisArg = arguments[1] || window;
 
     for(var i = 0; i < len; i++){
-        if(arr[i] === undefined){
+        if(arr[i] === void 0){
           continue;
         }
         callback.apply(thisArg, [arr[i], i, arr]);
@@ -500,6 +500,7 @@ function generate(arr){
 /**
  * @method concat 
  * @description concat方法用于合并两个或者多个数组，并返回一个新数组
+ * 但它也可以让数组合并对象、原始值
  * @notice 
  * 此方法不会改变原数组
  */
@@ -536,6 +537,111 @@ function generate(arr){
 
   }
 
+ /**
+  * @method flat ES2019
+  * @description 将多维数组转换成一维数组（数组扁平化）
+  * @param 默认为1
+  *  1 ~ infinity
+  * @notice 
+  * 1、输入负数不做任何扁平化处理
+  * 2、输入数字字符串，内置通过Number处理成数字类型
+  * 3、flat会剔除所有数组空隙empty  忽略empty(val !== void 0)
+  */
+  // 1、forEach + isArray + push + 递归
+  Array.prototype._pushFlat = function(){
+    var arr = this,
+        deep = arguments[0] === Infinity ? Infinity : arguments[0] >>> 0,
+        newArr = [];
 
+    ;(function _(arr, deep){
 
-  
+        arr.forEach(function(elem){
+            if(Array.isArray(elem) && deep > 0){
+                _(elem, deep - 1);
+            }else{
+                newArr.push(elem);
+            }
+        })
+    })(arr,deep);
+
+    return newArr;
+  }
+
+// 2、stack pop + push
+  Array.prototype._stackFlat = function(){
+    var arr = this,
+        stack = [...arr],
+        newArr = [];
+
+    while(stack.length) {
+        var popItem = stack.pop();
+
+        if(Array.isArray(popItem)){
+            stack.push(...popItem);
+        }else{
+            newArr.push(...popItem);
+        }
+    }
+
+    return newArr.reverse();
+  }
+
+/**
+ * @method flatMap 2020
+ * @description 首先使用映射函数映射每一个元素(map)，然后将结果压缩成一个新数组。
+ * 它与map连着深度值为1的flat几乎相同，但flatMap通常再合并成一种方法的效率稍微高一些
+ * flat + map === flatMap
+ * @param 
+ *      callback 可以生成一个新数组的元素的函数
+ *          elem
+ *             当前正在数组中处理的元素
+ *          index [可选]
+ *             数组中正在处理的当前元素的索引
+ *          array [可选]
+ *              被map调用的数组
+ * @param thisArg [可选] 改变this指向
+ * @notice
+ *  1、flatMap是浅度扁平化 flat为一层
+ *  2、不会打印出稀疏数组的空隙项
+ */
+
+ Array.prototype._flatMap = function(callback){
+    var arr = this,
+        len = arr.length,
+        thisArg = arguments[1],
+        newArr = [];
+        
+        arr._forEach(function(elem, index, arr){
+            newArr.push(callback.apply(thisArg, [elem, index, arr]))
+        })
+
+        return newArr.flat();
+ }
+
+/**
+ * @method Array.from
+ * @description 返回一个新数组
+ * @param
+ *  arrLike
+ *      参数第一项必须是一个可迭代对象或者是一个标准的类数组
+ *  mapFn [可选]
+ *      数组的每一个元素都会执行该回调函数
+ *          elem
+ *             正在遍历的数组元素
+ *          index
+ *              正在遍历的数组元素的索引
+ *  thisArg [可选]
+ *       执行mapFn时的this指向
+ * @notice
+ * 1、对于类数组 from方法正常返回一个对应的数组的必要条件：
+ *  1、键名必须从0开始按数字顺序排列，from会从0开始遍历填充新数组
+ *  2、length属性必须正确
+ *  3、length决定了新数组的长度，属性名决定了填充该数组的位置
+ * 2、返回一个新的数组引用,但新数组中的引用是浅拷贝
+ * 3、参数如果是一个Symbol、数字、bool、正则、对象这些没有Symbol.iterator
+ * Array.from不做处理，并且返回一个空数组
+ * 4、无参数填入默认为undefined，导致报错
+ * 5、每一次遍历必须返回一个值
+ * 6、不会改变原数组
+ * 
+ */
