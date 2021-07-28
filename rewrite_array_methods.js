@@ -620,7 +620,7 @@ function generate(arr){
 
 /**
  * @method Array.from
- * @description 返回一个新数组
+ * @description 可把一个可迭代对象或者是一个标准的类数组转换成一个数组，并返回一个新数组
  * @param
  *  arrLike
  *      参数第一项必须是一个可迭代对象或者是一个标准的类数组
@@ -645,3 +645,43 @@ function generate(arr){
  * 6、不会改变原数组
  * 
  */
+
+ /**
+  * @method includes ES2016 ES7
+  * @param 
+  *     valueToFind [必填] 如果不填返回false
+  *         查询数组内是否包含某个元素，返回bool值
+  *     fromIndex [可选]
+  *         默认为0，从数组哪项下标开始找起
+  *         fromIndex >= this.length -> return false
+  *         fromIndex + this.length < 0 从0开始搜索
+  * @notice
+  * 1、区分字符串数字与数字
+  * 2、区分大小写
+  * 3、this.includes.length为 1
+  * 
+  * */
+  Array.prototype.includes = function(value){
+    var obj = Object(this),
+        len = obj.length,
+        fromIndex = arguments[1];
+
+    if(this === null) {
+        return new TypeError('this is null');
+    }
+    if(fromIndex >= len){
+        return false;
+    }
+    if(fromIndex < 0){
+      Math.max(fromIndex + len, 0);
+    }
+
+    while(fromIndex < len){
+        if(obj[fromIndex] === value){
+            return true;
+        }
+        fromIndex++;
+    }
+
+    return false; 
+  }
