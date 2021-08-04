@@ -504,7 +504,36 @@ function generate(arr){
  * @notice 
  * 此方法不会改变原数组
  */
+ 
+Array.prototype._concat = function(){
+  var newArr = [],
+      len = arguments.length,
+      item;
 
+  for(var i = 0; i < this.length; i++){
+    newArr.push(this[i]);
+  }
+
+  for(var j = 0; j < len; j++){
+    item = arguments[j];
+
+    if(item instanceof Array){
+      //如果是数组的情况下
+      for(var k = 0; k < item.length; k++){
+        if(item[k] === void 0){
+          //如果是稀疏数组的空隙项，那么直接跳出本次循环
+          continue;
+        }
+        newArr.push(item[k]);
+      }
+    }else{
+      // 如果不是数组，直接往push
+      newArr.push(item);
+    }
+  }
+
+  return newArr;
+}
 
 /**
  * @method toString  ES6
